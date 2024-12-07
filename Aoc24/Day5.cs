@@ -65,12 +65,10 @@ public class Day5(ITestOutputHelper output)
 
     (List<Rule>, List<Update>) Parse(string input)
     {
-        var lines = input.Split('\n', StringSplitOptions.TrimEntries);
-
         var rules = new List<Rule>();
         var updates = new List<Update>();
 
-        foreach (var line in lines)
+        foreach (var line in input.GetLines())
         {
             if (line == "") continue;
     

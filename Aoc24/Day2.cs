@@ -25,21 +25,20 @@ public class Day2(ITestOutputHelper output)
     
     int RunPart1(string input)
     {
-        var reports = input.Split('\n')
-            .Select(x => x.Split(" ").Select(int.Parse).ToArray())
-            .ToList();
-
+        var reports = Parse(input);
         return reports.Count(IsSafeReport);
     }
 
     int RunPart2(string input)
     {
-        var reports = input.Split('\n')
-            .Select(x => x.Split(" ").Select(int.Parse).ToArray())
-            .ToList();
-
+        var reports = Parse(input);
         return reports.Count(HasSafePermutation);
     }
+
+    private static int[][] Parse(string input) =>
+        input.GetLines()
+            .Select(x => x.Split(" ").Select(int.Parse).ToArray())
+            .ToArray();
 
 
     bool IsSafeReport(int[] report) => IsAscending(report) || IsDescending(report);

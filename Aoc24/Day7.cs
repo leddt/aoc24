@@ -38,11 +38,7 @@ public class Day7(ITestOutputHelper output)
         return equations.Where(x => HasSolution(x, Op.Add, Op.Mul, Op.Cat)).Sum(x => x.Result);
     }
 
-    private IEnumerable<Equation> Parse(string input)
-    {
-        return input.Split('\n', StringSplitOptions.TrimEntries).Select(ParseEquation);
-    }
-
+    private IEnumerable<Equation> Parse(string input) => input.GetLines().Select(ParseEquation);
 
     Equation ParseEquation(string line)
     {

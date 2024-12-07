@@ -41,8 +41,7 @@ public class Day1(ITestOutputHelper output)
 
     private static (List<int> left, List<int> right) Parse(string input)
     {
-        var lines = input.Split('\n');
-        var data = lines.Select(x => x.Split("   ").Select(int.Parse)).ToList();
+        var data = input.GetLines().Select(x => x.Split("   ").Select(int.Parse)).ToList();
         var left = data.Select(x => x.First()).Order().ToList();
         var right = data.Select(x => x.Last()).Order().ToList();
         return (left, right);

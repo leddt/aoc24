@@ -67,7 +67,7 @@ public class Day4(ITestOutputHelper output)
 
     Map Parse(string input)
     {
-        var grid = input.Split('\n', StringSplitOptions.TrimEntries);
+        var grid = input.GetLines();
         var width = grid[0].Length;
         var height = grid.Length;
         
