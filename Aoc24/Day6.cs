@@ -32,7 +32,7 @@ public class Day6(ITestOutputHelper output)
         var map = Grid.Parse(input);
         
         var position = FindStart(map);
-        Dir facing = default; // Up
+        var facing = Dir.Up;
 
         while (true)
         {
@@ -85,18 +85,6 @@ public class Day6(ITestOutputHelper output)
         throw new Exception("Start not found");
     }
     
-    V2 NextV2(V2 loc, Dir dir)
-    {
-        return dir switch
-        {
-            Dir.Up => loc with { Y = loc.Y - 1 },
-            Dir.Right => loc with { X = loc.X + 1 },
-            Dir.Down => loc with { Y = loc.Y + 1 },
-            Dir.Left => loc with { X = loc.X - 1 },
-            _ => throw new ArgumentOutOfRangeException(nameof(dir), dir, null)
-        };
-    }
-    
     bool IsLoop(Grid map, V2 position)
     {
         var facing = Dir.Up;
@@ -104,8 +92,8 @@ public class Day6(ITestOutputHelper output)
         while (true)
         {
             if (!map.Contains(position)) return false;
-            if (IsDir(map, position, facing)) return true;
-            if (map[position] is '.' or '^') SetDir(map, position, facing);
+            if (map[position] == facing.ToChar()) return true;
+            if (map[position] is '.' or '^') map[position] = facing.ToChar();
     
             (position, facing) = Step(map, position, facing);
         }
@@ -113,24 +101,13 @@ public class Day6(ITestOutputHelper output)
     
     (V2, Dir) Step(Grid map, V2 position, Dir facing)
     {
-        var next = NextV2(position, facing);
+        var next = position.Move(facing);
     
-        if (map.Contains(next) && IsObstacle(map, next))
-        {
-            facing++;
-            if (!Enum.IsDefined(facing)) facing = default;
-        }
+        if (map.Contains(next) && map[next] == '#')
+            facing = facing.TurnRight();
         else
-        {
             position = next;
-        }
     
         return (position, facing);
     }
-
-    bool IsDir(Grid map, V2 loc, Dir dir) => map[loc] == dir.ToString()[0];
-    void SetDir(Grid map, V2 loc, Dir dir) => map[loc] = dir.ToString()[0];
-    bool IsObstacle(Grid map, V2 loc) => map[loc] == '#';
-
-    enum Dir { Up, Right, Down, Left }
 }
