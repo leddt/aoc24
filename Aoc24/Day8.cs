@@ -53,54 +53,51 @@ public class Day8(ITestOutputHelper output)
 
     Map Parse(string input)
     {
-        var grid = input.GetLines().Select(x => x.ToArray()).ToArray();
+        var grid = Grid.Parse(input);
 
-        var height = grid.Length;
-        var width = grid.First().Length;
-
-        var groups = new Dictionary<char, List<Loc>>();
+        var groups = new Dictionary<char, List<V2>>();
         
-        for (var x = 0; x < width; x++)
-        for (var y = 0; y < height; y++)
+        for (var x = 0; x < grid.Width; x++)
+        for (var y = 0; y < grid.Height; y++)
         {
-            var type = grid[y][x];
+            var type = grid[x, y];
             if (type == '.') continue;
 
             if (!groups.TryGetValue(type, out var group))
             {
-                group = new List<Loc>();
+                group = new List<V2>();
                 groups.Add(type, group);
             }
 
-            group.Add(new Loc(x, y));
+            group.Add(new V2(x, y));
         }
 
-        return new Map(width, height, groups.Select(x => x.Value.ToArray()).ToArray());
+        return new Map(grid, groups.Select(x => x.Value.ToArray()).ToArray());
     }
 
-    IEnumerable<(Loc a, Loc b)> GetPairs(Loc[] group)
+    IEnumerable<(V2 a, V2 b)> GetPairs(V2[] group)
     {
         for (var i = 0; i < group.Length; i++)
         for (var j = i + 1; j < group.Length; j++)
             yield return (group[i], group[j]);
     }
 
-    IEnumerable<Loc> GetSimpleNodes(Map map, Loc a, Loc b)
+    IEnumerable<V2> GetSimpleNodes(Map map, V2 a, V2 b)
     {
         var n1 = GetNext(a, b);
         var n2 = GetNext(b, a);
 
-        if (map.IsInBounds(n1)) yield return n1;
-        if (map.IsInBounds(n2)) yield return n2;
+        if (map.Grid.Contains(n1)) yield return n1;
+        if (map.Grid.Contains(n2)) yield return n2;
     }
 
-    IEnumerable<Loc> GetRepeatingNodes(Map map, Loc a, Loc b)
+    IEnumerable<V2> GetRepeatingNodes(Map map, V2 a, V2 b)
     {
         return Follow(a, b).Concat(Follow(b, a));
 
-        IEnumerable<Loc> Follow(Loc l1, Loc l2)
+        IEnumerable<V2> Follow(V2 l1, V2 l2)
         {
-            while (map.IsInBounds(l1))
+            while (map.Grid.Contains(l1))
             {
                 yield return l1;
                 (l1, l2) = (l2, GetNext(l2, l1));
@@ -108,16 +105,6 @@ public class Day8(ITestOutputHelper output)
         }
     }
 
-    Loc GetNext(Loc a, Loc b)
-    {
-        var dx = a.X - b.X;
-        var dy = a.Y - b.Y;
-        return new Loc(a.X + dx, a.Y + dy);
-    }
-
-    record Map(int Width, int Height, Loc[][] Groups)
-    {
-        public bool IsInBounds(Loc l) => l.X >= 0 && l.X < Width && l.Y >= 0 && l.Y < Height;
-    }
-    record Loc(int X, int Y);
+    V2 GetNext(V2 a, V2 b) => a + (a - b);
+    record Map(Grid Grid, V2[][] Groups);
 }

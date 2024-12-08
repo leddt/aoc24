@@ -29,26 +29,26 @@ public class Day6(ITestOutputHelper output)
 
     int RunPart1(string input)
     {
-        var map = Parse(input);
+        var map = Grid.Parse(input);
         
         var position = FindStart(map);
         Dir facing = default; // Up
 
         while (true)
         {
-            Set(map, position, 'X');
+            map.Set(position, 'X');
 
             (position, facing) = Step(map, position, facing);
 
-            if (IsOutOfBounds(map, position)) break;
+            if (!map.Contains(position)) break;
         }
 
-        return map.Grid.Sum(x => x.Count(y => y == 'X'));
+        return map.Lines.Sum(y => y.Count(x => x == 'X'));
     }
 
     int RunPart2(string input)
     {
-        var map = Parse(input);
+        var map = Grid.Parse(input);
         
         var start = FindStart(map);
         var count = 0;
@@ -56,7 +56,7 @@ public class Day6(ITestOutputHelper output)
         for (var x = 0; x < map.Width; x++)
         for (var y = 0; y < map.Height; y++)
         {
-            if (map.Grid[y][x] != '.') continue;
+            if (map[x, y] != '.') continue;
 
             var candidateMap = CreateCandidate(map, x, y);
 
@@ -66,35 +66,26 @@ public class Day6(ITestOutputHelper output)
         return count;
     }
 
-    Map CreateCandidate(Map source, int x, int y)
+    Grid CreateCandidate(Grid source, int x, int y)
     {
-        var candidateGrid = source.Grid.Select(g => g.ToArray()).ToArray();
+        var candidateGrid = source.Lines.Select(l => l.ToArray()).ToArray();
         candidateGrid[y][x] = '#';
-        return source with { Grid = candidateGrid };
-    }
-    
-    Map Parse(string input)
-    {
-        var grid = input.GetLines().Select(x => x.Select(c => c).ToArray()).ToArray();
-        var width = grid.Length;
-        var height = grid.First().Length;
-
-        return new Map(grid, width, height);
+        return new Grid(candidateGrid);
     }
 
-    Loc FindStart(Map map)
+    V2 FindStart(Grid map)
     {
         for (var x = 0; x < map.Width; x++)
         for (var y = 0; y < map.Height; y++)
         {
-            if (map.Grid[y][x] == '^')
-                return new Loc(x, y);
+            if (map[x, y] == '^')
+                return new V2(x, y);
         }
-    
+
         throw new Exception("Start not found");
     }
     
-    Loc NextLoc(Loc loc, Dir dir)
+    V2 NextV2(V2 loc, Dir dir)
     {
         return dir switch
         {
@@ -106,25 +97,25 @@ public class Day6(ITestOutputHelper output)
         };
     }
     
-    bool IsLoop(Map map, Loc position)
+    bool IsLoop(Grid map, V2 position)
     {
         var facing = Dir.Up;
     
         while (true)
         {
-            if (IsOutOfBounds(map, position)) return false;
+            if (!map.Contains(position)) return false;
             if (IsDir(map, position, facing)) return true;
-            if (Peek(map, position) is '.' or '^') SetDir(map, position, facing);
+            if (map[position] is '.' or '^') SetDir(map, position, facing);
     
             (position, facing) = Step(map, position, facing);
         }
     }
     
-    (Loc, Dir) Step(Map map, Loc position, Dir facing)
+    (V2, Dir) Step(Grid map, V2 position, Dir facing)
     {
-        var next = NextLoc(position, facing);
+        var next = NextV2(position, facing);
     
-        if (!IsOutOfBounds(map, next) && IsObstacle(map, next))
+        if (map.Contains(next) && IsObstacle(map, next))
         {
             facing++;
             if (!Enum.IsDefined(facing)) facing = default;
@@ -136,15 +127,10 @@ public class Day6(ITestOutputHelper output)
     
         return (position, facing);
     }
-    
-    char Peek(Map map, Loc loc) => map.Grid[loc.Y][loc.X];
-    void Set(Map map, Loc loc, char val) => map.Grid[loc.Y][loc.X] = val;
-    bool IsDir(Map map, Loc loc, Dir dir) => Peek(map, loc) == dir.ToString()[0];
-    void SetDir(Map map, Loc loc, Dir dir) => Set(map, loc, dir.ToString()[0]);
-    bool IsOutOfBounds(Map map, Loc loc) => loc.X < 0 || loc.X >= map.Width || loc.Y < 0 || loc.Y >= map.Height;
-    bool IsObstacle(Map map, Loc loc) => Peek(map, loc) == '#';
 
-    record Map(char[][] Grid, int Width, int Height);
-    record Loc(int X, int Y);
+    bool IsDir(Grid map, V2 loc, Dir dir) => map[loc] == dir.ToString()[0];
+    void SetDir(Grid map, V2 loc, Dir dir) => map[loc] = dir.ToString()[0];
+    bool IsObstacle(Grid map, V2 loc) => map[loc] == '#';
+
     enum Dir { Up, Right, Down, Left }
 }

@@ -29,7 +29,7 @@ public class Day4(ITestOutputHelper output)
 
     int RunPart1(string input)
     {
-        var map = Parse(input);
+        var map = Grid.Parse(input);
 
         var count = 0;
 
@@ -51,34 +51,25 @@ public class Day4(ITestOutputHelper output)
 
     int RunPart2(string input)
     {
-        var map = Parse(input);
+        var map = Grid.Parse(input);
 
         var count = 0;
 
         for (var x = 0; x < map.Width; x++)
         for (var y = 0; y < map.Height; y++)
         {
-            if (map.Grid[y][x] != 'A') continue;
+            if (map[x, y] != 'A') continue;
             if (CheckDiag(map, x, y, 1) && CheckDiag(map, x, y, -1)) count++;
         }
 
         return count;
     }
-
-    Map Parse(string input)
-    {
-        var grid = input.GetLines();
-        var width = grid[0].Length;
-        var height = grid.Length;
-        
-        return new Map(grid, width, height);
-    }
     
-    bool LookDir(Map map, int x, int y, int dx, int dy, int c = 0)
+    bool LookDir(Grid map, int x, int y, int dx, int dy, int c = 0)
     {
         const string lookingFor = "XMAS";
         
-        if (map.Grid[y][x] != lookingFor[c]) return false;
+        if (map[x, y] != lookingFor[c]) return false;
         if (c == lookingFor.Length - 1) return true;
 
         var nextX = x + dx;
@@ -90,16 +81,14 @@ public class Day4(ITestOutputHelper output)
         return LookDir(map, nextX, nextY, dx, dy, c + 1);
     }
 
-    bool CheckDiag(Map map, int x, int y, int diag)
+    bool CheckDiag(Grid map, int x, int y, int diag)
     {
         if (x == 0 || x == map.Width - 1 || y == 0 || y == map.Height - 1) return false;
 
-        var left = map.Grid[y + diag][x - 1];
-        var right = map.Grid[y - diag][x + 1];
+        var left = map[x - 1, y + diag];
+        var right = map[x + 1, y - diag];
 
         char[] chars = [left, right];
         return chars.Contains('M') && chars.Contains('S');
     }
-
-    record Map(string[] Grid, int Width, int Height);
 }
