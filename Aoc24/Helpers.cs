@@ -34,6 +34,15 @@ public class Grid(IReadOnlyList<char[]> lines)
     public bool Contains(int x, int y) => x >= 0 && x < Width && y >= 0 && y < Height;
     public bool Contains(V2 v) => Contains(v.X, v.Y);
 
+    public void ForEach(Action<V2> action)
+    {
+        for (var x = 0; x < Width; x++)
+        for (var y = 0; y < Height; y++)
+        {
+            action(new V2(x, y));
+        }
+    }
+
     public char this[int x, int y]
     {
         get => lines[y][x];

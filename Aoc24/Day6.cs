@@ -53,25 +53,21 @@ public class Day6(ITestOutputHelper output)
         var start = FindStart(map);
         var count = 0;
 
-        for (var x = 0; x < map.Width; x++)
-        for (var y = 0; y < map.Height; y++)
+        map.ForEach(pos =>
         {
-            if (map[x, y] != '.') continue;
-
-            var candidateMap = CreateCandidate(map, x, y);
-
+            if (map[pos] != '.') return;
+            var candidateMap = CreateCandidate(map, pos);
             if (IsLoop(candidateMap, start)) count++;
-        }
+        });
 
         return count;
     }
 
-    Grid CreateCandidate(Grid source, int x, int y)
-    {
-        var candidateGrid = source.Lines.Select(l => l.ToArray()).ToArray();
-        candidateGrid[y][x] = '#';
-        return new Grid(candidateGrid);
-    }
+    Grid CreateCandidate(Grid source, V2 pos) =>
+        new(source.Lines.Select(l => l.ToArray()).ToArray())
+        {
+            [pos] = '#'
+        };
 
     V2 FindStart(Grid map)
     {

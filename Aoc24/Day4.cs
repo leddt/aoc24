@@ -33,18 +33,17 @@ public class Day4(ITestOutputHelper output)
 
         var count = 0;
 
-        for (var x = 0; x < map.Width; x++)
-        for (var y = 0; y < map.Height; y++)
+        map.ForEach(pos =>
         {
-            if (LookDir(map, x, y, 0, 1)) count++;
-            if (LookDir(map, x, y, 0, -1)) count++;
-            if (LookDir(map, x, y, 1, 0)) count++;
-            if (LookDir(map, x, y, 1, 1)) count++;
-            if (LookDir(map, x, y, 1, -1)) count++;
-            if (LookDir(map, x, y, -1, 0)) count++;
-            if (LookDir(map, x, y, -1, 1)) count++;
-            if (LookDir(map, x, y, -1, -1)) count++;
-        }
+            if (LookDir(map, pos, V2.Up)) count++;
+            if (LookDir(map, pos, V2.Right)) count++;
+            if (LookDir(map, pos, V2.Down)) count++;
+            if (LookDir(map, pos, V2.Left)) count++;
+            if (LookDir(map, pos, V2.Up + V2.Right)) count++;
+            if (LookDir(map, pos, V2.Up + V2.Left)) count++;
+            if (LookDir(map, pos, V2.Down + V2.Right)) count++;
+            if (LookDir(map, pos, V2.Down + V2.Left)) count++;
+        });
 
         return count;
     }
@@ -65,20 +64,17 @@ public class Day4(ITestOutputHelper output)
         return count;
     }
     
-    bool LookDir(Grid map, int x, int y, int dx, int dy, int c = 0)
+    bool LookDir(Grid map, V2 pos, V2 dir, int c = 0)
     {
         const string lookingFor = "XMAS";
         
-        if (map[x, y] != lookingFor[c]) return false;
+        if (map[pos] != lookingFor[c]) return false;
         if (c == lookingFor.Length - 1) return true;
 
-        var nextX = x + dx;
-        var nextY = y + dy;
+        var next = pos + dir;
 
-        if (nextX < 0 || nextX >= map.Width) return false;
-        if (nextY < 0 || nextY >= map.Height) return false;
-
-        return LookDir(map, nextX, nextY, dx, dy, c + 1);
+        if (!map.Contains(next)) return false;
+        return LookDir(map, next, dir, c + 1);
     }
 
     bool CheckDiag(Grid map, int x, int y, int diag)

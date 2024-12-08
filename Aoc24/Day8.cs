@@ -57,11 +57,10 @@ public class Day8(ITestOutputHelper output)
 
         var groups = new Dictionary<char, List<V2>>();
         
-        for (var x = 0; x < grid.Width; x++)
-        for (var y = 0; y < grid.Height; y++)
+        grid.ForEach(pos =>
         {
-            var type = grid[x, y];
-            if (type == '.') continue;
+            var type = grid[pos];
+            if (type == '.') return;
 
             if (!groups.TryGetValue(type, out var group))
             {
@@ -69,8 +68,8 @@ public class Day8(ITestOutputHelper output)
                 groups.Add(type, group);
             }
 
-            group.Add(new V2(x, y));
-        }
+            group.Add(pos);
+        });
 
         return new Map(grid, groups.Select(x => x.Value.ToArray()).ToArray());
     }
