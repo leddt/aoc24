@@ -36,7 +36,7 @@ public class Day6(ITestOutputHelper output)
 
         while (true)
         {
-            map.Set(position, 'X');
+            map[position] = 'X';
 
             (position, facing) = Step(map, position, facing);
 
