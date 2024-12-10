@@ -1,6 +1,6 @@
 ﻿namespace Aoc24;
 
-public class Day4(ITestOutputHelper output)
+public class Day04(ITestOutputHelper output)
 {
     private const string Sample = """
                                   MMMSXXMASM

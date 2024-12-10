@@ -1,6 +1,6 @@
 ﻿namespace Aoc24;
 
-public partial class Day3(ITestOutputHelper output)
+public partial class Day03(ITestOutputHelper output)
 {
     [Fact] 
     public void TestPart1()
