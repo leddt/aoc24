@@ -4,23 +4,9 @@ public static class Extensions
 {
     public static string[] GetLines(this string value) => value.Split('\n').Select(x => x.Replace("\r", "")).ToArray();
 
-    public static Dir TurnRight(this Dir dir) => dir switch
-    {
-        Dir.Up => Dir.Right,
-        Dir.Right => Dir.Down,
-        Dir.Down => Dir.Left,
-        Dir.Left => Dir.Up,
-        _ => throw new ArgumentOutOfRangeException(nameof(dir), dir, null)
-    };
-    
-    public static Dir TurnLeft(this Dir dir) => dir switch
-    {
-        Dir.Up => Dir.Left,
-        Dir.Right => Dir.Up,
-        Dir.Down => Dir.Right,
-        Dir.Left => Dir.Down,
-        _ => throw new ArgumentOutOfRangeException(nameof(dir), dir, null)
-    };
+    private static readonly int DirCount = Enum.GetValues<Dir>().Length;
+    public static Dir TurnRight(this Dir dir) => (Dir)(((int)dir + 1) % DirCount);
+    public static Dir TurnLeft(this Dir dir) => (Dir)(((int)dir - 1 + DirCount) % DirCount);
 
     public static char ToChar(this Dir dir) => dir.ToString()[0];
 }
