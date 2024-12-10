@@ -34,6 +34,27 @@ public class Grid(IReadOnlyList<char[]> lines)
     public bool Contains(int x, int y) => x >= 0 && x < Width && y >= 0 && y < Height;
     public bool Contains(V2 v) => Contains(v.X, v.Y);
 
+    public IEnumerable<V2> All()
+    {
+        for (var x = 0; x < Width; x++)
+        for (var y = 0; y < Height; y++)
+            yield return new V2(x, y);
+    }
+    
+    public IEnumerable<V2> FindAll(char c) => All().Where(x => this[x] == c);
+
+    public IEnumerable<(V2 pos, char c)> Neighbors(V2 pos)
+    {
+        V2[] all = [
+            pos.Move(Dir.Up), 
+            pos.Move(Dir.Right), 
+            pos.Move(Dir.Down), 
+            pos.Move(Dir.Left)
+        ];
+
+        return all.Where(Contains).Select(x => (x, this[x]));
+    }
+
     public void ForEach(Action<V2> action)
     {
         for (var x = 0; x < Width; x++)
