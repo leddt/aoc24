@@ -43,11 +43,8 @@ public class Grid<T>(IReadOnlyList<T[]> lines)
 
     public void ForEach(Action<V2> action)
     {
-        for (var x = 0; x < Width; x++)
-        for (var y = 0; y < Height; y++)
-        {
-            action(new V2(x, y));
-        }
+        foreach (var pos in All()) 
+            action(pos);
     }
 
     public T this[int x, int y]

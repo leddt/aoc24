@@ -52,16 +52,9 @@ public class Day4(ITestOutputHelper output)
     {
         var map = Grid.Parse(input);
 
-        var count = 0;
-
-        for (var x = 0; x < map.Width; x++)
-        for (var y = 0; y < map.Height; y++)
-        {
-            if (map[x, y] != 'A') continue;
-            if (CheckDiag(map, x, y, 1) && CheckDiag(map, x, y, -1)) count++;
-        }
-
-        return count;
+        return map.FindAll('A')
+            .Count(pos => CheckDiag(map, pos.X, pos.Y, 1) &&
+                          CheckDiag(map, pos.X, pos.Y, -1));
     }
     
     bool LookDir(Grid map, V2 pos, V2 dir, int c = 0)

@@ -31,7 +31,7 @@ public class Day6(ITestOutputHelper output)
     {
         var map = Grid.Parse(input);
         
-        var position = FindStart(map);
+        var position = map.FindAll('^').First();
         var facing = Dir.Up;
 
         while (true)
@@ -50,7 +50,7 @@ public class Day6(ITestOutputHelper output)
     {
         var map = Grid.Parse(input);
         
-        var start = FindStart(map);
+        var start = map.FindAll('^').First();
         var count = 0;
 
         map.ForEach(pos =>
@@ -69,18 +69,6 @@ public class Day6(ITestOutputHelper output)
             [pos] = '#'
         };
 
-    V2 FindStart(Grid map)
-    {
-        for (var x = 0; x < map.Width; x++)
-        for (var y = 0; y < map.Height; y++)
-        {
-            if (map[x, y] == '^')
-                return new V2(x, y);
-        }
-
-        throw new Exception("Start not found");
-    }
-    
     bool IsLoop(Grid map, V2 position)
     {
         var facing = Dir.Up;
