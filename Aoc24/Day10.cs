@@ -27,30 +27,27 @@ public class Day10(ITestOutputHelper output)
 
     int RunPart1(string input)
     {
-        var grid = Grid.Parse(input);
-        var heads = grid.FindAll('0');
+        var grid = Grid.ParseInts(input);
+        var heads = grid.FindAll(0);
 
         return heads.Sum(h => GetHeadScoreP1(grid, h));
     }
 
     int RunPart2(string input)
     {
-        var grid = Grid.Parse(input);
-        var heads = grid.FindAll('0');
+        var grid = Grid.ParseInts(input);
+        var heads = grid.FindAll(0);
 
         return heads.Sum(h => GetHeadScoreP2(grid, h));
     }
 
-    int GetHeadScoreP1(Grid grid, V2 head) => FindPeaks(grid, head).Distinct().Count();
-    int GetHeadScoreP2(Grid grid, V2 head) => FindPeaks(grid, head).Count();
+    int GetHeadScoreP1(Grid<int> grid, V2 head) => FindPeaks(grid, head).Distinct().Count();
+    int GetHeadScoreP2(Grid<int> grid, V2 head) => FindPeaks(grid, head).Count();
 
-    IEnumerable<V2> FindPeaks(Grid grid, V2 loc)
+    IEnumerable<V2> FindPeaks(Grid<int> grid, V2 loc)
     {
-        var cur = int.Parse(grid[loc].ToString());
-        if (cur == 9) return [loc];
+        if (grid[loc] == 9) return [loc];
         
-        return grid.Neighbors(loc).Where(x => IsNext(x.c)).SelectMany(x => FindPeaks(grid, x.pos));
-
-        bool IsNext(char c) => int.Parse(c.ToString()) == cur + 1;
+        return grid.Neighbors(loc).Where(x => x.c == grid[loc] + 1).SelectMany(x => FindPeaks(grid, x.pos));
     }
 }

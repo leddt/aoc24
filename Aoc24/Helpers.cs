@@ -25,11 +25,11 @@ public static class Extensions
     public static char ToChar(this Dir dir) => dir.ToString()[0];
 }
 
-public class Grid(IReadOnlyList<char[]> lines)
+public class Grid<T>(IReadOnlyList<T[]> lines)
 {
     public int Width { get; } = lines[0].Length;
     public int Height { get; } = lines.Count;
-    public IReadOnlyList<IReadOnlyList<char>> Lines => lines;
+    public IReadOnlyList<IReadOnlyList<T>> Lines => lines;
 
     public bool Contains(int x, int y) => x >= 0 && x < Width && y >= 0 && y < Height;
     public bool Contains(V2 v) => Contains(v.X, v.Y);
@@ -41,9 +41,9 @@ public class Grid(IReadOnlyList<char[]> lines)
             yield return new V2(x, y);
     }
     
-    public IEnumerable<V2> FindAll(char c) => All().Where(x => this[x] == c);
+    public IEnumerable<V2> FindAll(T c) => All().Where(x => Equals(this[x], c));
 
-    public IEnumerable<(V2 pos, char c)> Neighbors(V2 pos)
+    public IEnumerable<(V2 pos, T c)> Neighbors(V2 pos)
     {
         V2[] all = [
             pos.Move(Dir.Up), 
@@ -64,19 +64,24 @@ public class Grid(IReadOnlyList<char[]> lines)
         }
     }
 
-    public char this[int x, int y]
+    public T this[int x, int y]
     {
         get => lines[y][x];
         set => lines[y][x] = value;
     }
     
-    public char this[V2 v]
+    public T this[V2 v]
     {
         get => lines[v.Y][v.X];
         set => lines[v.Y][v.X] = value;
     }
+}
 
+public class Grid(IReadOnlyList<char[]> lines) : Grid<char>(lines)
+{
     public static Grid Parse(string input) => new(input.GetLines().Select(x => x.ToArray()).ToArray());
+    public static Grid<int> ParseInts(string input) => Parse(input, c => c - '0');
+    public static Grid<T> Parse<T>(string input, Func<char, T> map) => new(input.GetLines().Select(x => x.Select(map).ToArray()).ToArray());
 }
 
 public readonly record struct V2(int X, int Y)
