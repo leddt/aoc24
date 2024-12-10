@@ -97,7 +97,7 @@ public class Day6(ITestOutputHelper output)
     
     (V2, Dir) Step(Grid map, V2 position, Dir facing)
     {
-        var next = position.Move(facing);
+        var next = position + V2.FromDir(facing);
     
         if (map.Contains(next) && map[next] == '#')
             facing = facing.TurnRight();

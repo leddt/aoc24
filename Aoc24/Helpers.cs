@@ -46,10 +46,10 @@ public class Grid<T>(IReadOnlyList<T[]> lines)
     public IEnumerable<(V2 pos, T c)> Neighbors(V2 pos)
     {
         V2[] all = [
-            pos.Move(Dir.Up), 
-            pos.Move(Dir.Right), 
-            pos.Move(Dir.Down), 
-            pos.Move(Dir.Left)
+            pos + V2.Up, 
+            pos + V2.Right, 
+            pos + V2.Down, 
+            pos + V2.Left
         ];
 
         return all.Where(Contains).Select(x => (x, this[x]));
@@ -90,8 +90,6 @@ public readonly record struct V2(int X, int Y)
     public static V2 operator -(V2 a, V2 b) => new(a.X - b.X, a.Y - b.Y);
     public static V2 operator *(V2 a, int scale) => new(a.X * scale, a.Y * scale);
     
-    public V2 Move(Dir dir, int dist = 1) => this + FromDir(dir) * dist;
-
     public static readonly V2 Up = new(0, -1);
     public static readonly V2 Right = new(1, 0);
     public static readonly V2 Down = new(0, 1);
