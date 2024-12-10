@@ -48,6 +48,6 @@ public class Day10(ITestOutputHelper output)
     {
         if (grid[loc] == 9) return [loc];
         
-        return grid.Neighbors(loc).Where(x => x.c == grid[loc] + 1).SelectMany(x => FindPeaks(grid, x.pos));
+        return grid.Neighbors(loc).Where(x => x.val == grid[loc] + 1).SelectMany(x => FindPeaks(grid, x.pos));
     }
 }

@@ -29,7 +29,7 @@ public class Grid<T>(IReadOnlyList<T[]> lines)
     
     public IEnumerable<V2> FindAll(T c) => All().Where(x => Equals(this[x], c));
 
-    public IEnumerable<(V2 pos, T c)> Neighbors(V2 pos)
+    public IEnumerable<(V2 pos, T val)> Neighbors(V2 pos)
     {
         V2[] all = [
             pos + V2.Up, 
