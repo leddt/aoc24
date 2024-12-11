@@ -19,47 +19,54 @@ public class Day11(ITestOutputHelper output)
 
     long RunPart1(string input)
     {
-        var stones = input.Split(' ').Select(long.Parse);
+        var stones = input.Split(' ').Select(x => new Stone(long.Parse(x)));
 
-        for (var i = 0; i < 25; i++)
-            stones = Blink(stones);
-
-        return stones.LongCount();
+        return GetStoneCount(stones, 25);
     }
 
     long RunPart2(string input)
     {
-        var stones = input.Split(' ').Select(long.Parse);
-        
-        // Naive approach is too slow
-        // for (var i = 0; i < 75; i++)
-        //     stones = Blink(stones);
-        //
-        // return stones.LongCount();
-        
-        return 0;
+        var stones = input.Split(' ').Select(x => new Stone(long.Parse(x)));
+
+        return GetStoneCount(stones, 75);
     }
 
-    private static IEnumerable<long> Blink(IEnumerable<long> stones) => stones.SelectMany(Blink);
-
-    private static IEnumerable<long> Blink(long stone)
+    private static long GetStoneCount(IEnumerable<Stone> stones, int iters)
     {
-        if (stone == 0)
+        for (var i = 0; i < iters; i++) 
+            stones = Blink(stones);
+
+        return stones.Sum(s => s.Count);
+    }
+
+    private static IEnumerable<Stone> Blink(IEnumerable<Stone> stones)
+    {
+        return stones
+            .GroupBy(s => s.Num)
+            .Select(x => new Stone(x.Key, x.Sum(s => s.Count)))
+            .SelectMany(Blink);
+    }
+
+    private static IEnumerable<Stone> Blink(Stone stone)
+    {
+        if (stone.Num == 0)
         {
-            yield return 1;
+            yield return stone with { Num = 1 };
             yield break;
         }
             
-        var ss = stone.ToString();
+        var ss = stone.Num.ToString();
         if (ss.Length % 2 == 0)
         {
             var mid = ss.Length / 2;
-            yield return long.Parse(ss[..mid]);
-            yield return long.Parse(ss[mid..]);
+            yield return stone with { Num = long.Parse(ss[..mid]) };
+            yield return stone with { Num = long.Parse(ss[mid..]) };
         }
         else
         {
-            yield return stone * 2024;
+            yield return stone with { Num = stone.Num * 2024 };
         }
     }
+
+    readonly record struct Stone(long Num, long Count = 1);
 }
