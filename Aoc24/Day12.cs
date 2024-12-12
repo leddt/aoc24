@@ -90,7 +90,7 @@ public class Day12(ITestOutputHelper output)
 
     int GetSideCount(HashSet<V2> region)
     {
-        var walls = new List<(V2 dir, List<V2> positions)>();
+        var walls = new List<(Dir dir, List<V2> positions)>();
         
         foreach (var pos in region.OrderBy(x => x.X).ThenBy(x => x.Y))
         {
@@ -111,7 +111,7 @@ public class Day12(ITestOutputHelper output)
             }
         }
 
-        (V2 dir, List<V2> positions) GetOrAddWall(V2 pos, V2 dir, params Dir[] sides)
+        (Dir dir, List<V2> positions) GetOrAddWall(V2 pos, Dir dir, params Dir[] sides)
         {
             var wall = walls.FirstOrDefault(w => w.dir == dir && w.positions.Intersect(sides.Select(s => pos + s)).Any());
             
