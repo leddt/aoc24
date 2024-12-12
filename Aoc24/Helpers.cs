@@ -78,6 +78,8 @@ public readonly record struct V2(int X, int Y)
     public static readonly V2 Down = new(0, 1);
     public static readonly V2 Left = new(-1, 0);
 
+    public static implicit operator V2(Dir dir) => FromDir(dir);
+
     public static V2 FromDir(Dir dir) => dir switch
     {
         Dir.Up => Up,
