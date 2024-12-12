@@ -104,11 +104,10 @@ public class Day12(ITestOutputHelper output)
 
         void CheckWall(V2 pos, Dir dir)
         {
-            if (!region.Contains(pos + dir))
-            {
-                var wall = GetOrAddWall(pos, dir, dir.TurnLeft(), dir.TurnRight());
-                wall.positions.Add(pos);
-            }
+            if (region.Contains(pos + dir)) return;
+            
+            var wall = GetOrAddWall(pos, dir, dir.TurnLeft(), dir.TurnRight());
+            wall.positions.Add(pos);
         }
 
         (Dir dir, List<V2> positions) GetOrAddWall(V2 pos, Dir dir, params Dir[] sides)
@@ -117,7 +116,7 @@ public class Day12(ITestOutputHelper output)
             
             if (wall == default)
             {
-                wall = (dir, new List<V2>());
+                wall = (dir, []);
                 walls.Add(wall);
             }
 
