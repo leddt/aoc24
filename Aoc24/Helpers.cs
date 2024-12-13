@@ -90,15 +90,4 @@ public readonly record struct V2(int X, int Y)
     };
 }
 
-public readonly record struct LongV2(long X, long Y)
-{
-    public double XyLength => X + Y;
-    
-    public static LongV2 operator +(LongV2 a, LongV2 b) => new(a.X + b.X, a.Y + b.Y);
-    public static LongV2 operator -(LongV2 a, LongV2 b) => new(a.X - b.X, a.Y - b.Y);
-    public static LongV2 operator *(LongV2 a, long scale) => new(a.X * scale, a.Y * scale);
-    
-    public static readonly LongV2 Zero = new(0, 0);
-}
-
 public enum Dir { Up, Right, Down, Left }

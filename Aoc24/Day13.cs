@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualBasic.FileIO;
+﻿using MathNet.Numerics.LinearAlgebra;
+using P = (long X, long Y);
 
 namespace Aoc24;
 
@@ -23,7 +24,7 @@ public partial class Day13(ITestOutputHelper output)
                                   """;
     
     [Fact] public void TestPart1() => Assert.Equal(480, RunPart1(Sample));
-    [Fact] public void TestPart2() => Assert.Equal(0, RunPart2(Sample));
+    [Fact] public void TestPart2() => Assert.Equal(875318608908, RunPart2(Sample));
     
     [Fact]
     public void Solve()
@@ -37,69 +38,64 @@ public partial class Day13(ITestOutputHelper output)
     long RunPart1(string input)
     {
         var machines = Parse(input);
-        return machines.Select(FindLowestCost).Sum();
+        return machines.Select(CalculateCost).Sum();
     }
 
     long RunPart2(string input)
     {
-        // Need better algo...
-        var machines = Parse(input/*, new LV2(10_000_000_000_000, 10_000_000_000_000)*/);
-        return machines.Select(FindLowestCost).Sum();
+        var machines = Parse(input, 10_000_000_000_000);
+        return machines.Select(CalculateCost).Sum();
     }
 
-    long FindLowestCost(Machine m)
+    long CalculateCost(Machine m)
     {
-        var seen = new Dictionary<LongV2, long>();
-        var open = new PriorityQueue<Candidate, double>();
-        open.Enqueue(new Candidate(m.Prize, 0, 0), 0);
+        // Using Math.Net to solve these equations, following docs here: https://numerics.mathdotnet.com/LinearEquations
+        // EQ1: (a * AX) + (b * BX) = PrizeX
+        // EQ2: (a * AY) + (b * BY) = PrizeY
 
-        while (open.TryDequeue(out var current, out _))
+        var buttonValues = Matrix<double>.Build.DenseOfArray(new double[,]
         {
-            if (current.Dist == LongV2.Zero) return current.Cost;
-            
-            if (current.Dist - m.A is { X: >= 0, Y: >= 0 } aPos) 
-                AddCandidate(new Candidate(aPos, current.ACount + 1, current.BCount));
-            if (current.Dist - m.B is { X: >= 0, Y: >= 0 } bPos) 
-                AddCandidate(new Candidate(bPos, current.ACount, current.BCount + 1));
-        }
+            { m.A.X, m.B.X },
+            { m.A.Y, m.B.Y }
+        });
+        
+        var targetResult = Vector<double>.Build.Dense([m.Prize.X, m.Prize.Y]);
+        var solution = buttonValues.Solve(targetResult);
+        if (targetResult == null) return 0;
 
-        return 0; // no solution
+        var aPresses = Math.Round(solution[0], 3);
+        var bPresses = Math.Round(solution[1], 3);
+        
+        // Ensure solution is whole numbers
+        if (aPresses % 1 != 0 || bPresses % 1 != 0) return 0;
 
-        void AddCandidate(Candidate c)
-        {
-            if (seen.TryGetValue(c.Dist, out var x) && x <= c.Cost) return;
-            
-            seen[c.Dist] = c.Cost;
-            open.Enqueue(c, c.Cost + c.Dist.XyLength);
-        }
+        return (long)(aPresses * 3 + bPresses);
     }
+    
+    record Machine(P A, P B, P Prize);
 
-    IEnumerable<Machine> Parse(string input, LongV2 prizeOffset = default)
+    IEnumerable<Machine> Parse(string input, long prizeOffset = 0)
     {
         var lines = input.GetLines();
+        var regex = GetXyRegex();
 
         var x = 0;
         while (x < lines.Length)
         {
-            var a = XyRegex().Match(lines[x]);
-            var b = XyRegex().Match(lines[x + 1]);
-            var prize = XyRegex().Match(lines[x + 2]);
+            var a = regex.Match(lines[x]);
+            var b = regex.Match(lines[x + 1]);
+            var prize = regex.Match(lines[x + 2]);
 
-            yield return new Machine(ToLongV2(a), ToLongV2(b), ToLongV2(prize) + prizeOffset);
+            yield return new Machine(ToP(a), ToP(b), ToP(prize, prizeOffset));
             
             x += 4;
         }
 
-        LongV2 ToLongV2(Match m) => new(long.Parse(m.Groups[1].ValueSpan), long.Parse(m.Groups[2].ValueSpan));
-    }
-
-    record Machine(LongV2 A, LongV2 B, LongV2 Prize);
-
-    record Candidate(LongV2 Dist, long ACount, long BCount)
-    {
-        public long Cost => ACount * 3 + BCount * 1;
+        P ToP(Match m, long offset = 0) => (
+            long.Parse(m.Groups[1].ValueSpan) + offset,
+            long.Parse(m.Groups[2].ValueSpan) + offset);
     }
 
     [GeneratedRegex(@"X.(\d+), Y.(\d+)")]
-    private static partial Regex XyRegex();
+    private static partial Regex GetXyRegex();
 }
