@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aoc24", "Aoc24\Aoc24.csproj", "{7EF279DB-8CAB-4A25-8095-248C999F3130}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Day14", "Day14\Day14.csproj", "{40E03DBF-4E7B-4BC9-B357-49E2B9E10A00}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,6 +14,10 @@ Global
 		{7EF279DB-8CAB-4A25-8095-248C999F3130}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7EF279DB-8CAB-4A25-8095-248C999F3130}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7EF279DB-8CAB-4A25-8095-248C999F3130}.Release|Any CPU.Build.0 = Release|Any CPU
+		{40E03DBF-4E7B-4BC9-B357-49E2B9E10A00}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{40E03DBF-4E7B-4BC9-B357-49E2B9E10A00}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{40E03DBF-4E7B-4BC9-B357-49E2B9E10A00}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{40E03DBF-4E7B-4BC9-B357-49E2B9E10A00}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 	EndGlobalSection
