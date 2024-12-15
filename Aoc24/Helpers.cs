@@ -1,4 +1,6 @@
-﻿namespace Aoc24;
+﻿using System.Text;
+
+namespace Aoc24;
 
 public static class Extensions
 {
@@ -16,6 +18,8 @@ public class Grid<T>(IReadOnlyList<T[]> lines)
     public int Width { get; } = lines[0].Length;
     public int Height { get; } = lines.Count;
     public IReadOnlyList<IReadOnlyList<T>> Lines => lines;
+
+    public void Swap(V2 a, V2 b) => (this[a], this[b]) = (this[b], this[a]);
 
     public bool Contains(int x, int y) => x >= 0 && x < Width && y >= 0 && y < Height;
     public bool Contains(V2 v) => Contains(v.X, v.Y);
@@ -58,10 +62,27 @@ public class Grid<T>(IReadOnlyList<T[]> lines)
         get => lines[v.Y][v.X];
         set => lines[v.Y][v.X] = value;
     }
+
+    public override string ToString()
+    {
+        var sb = new StringBuilder();
+        
+        for (var y = 0; y < Height; y++)
+        {
+            for (var x = 0; x < Width; x++)
+            {
+                sb.Append(this[x, y]);
+            }
+            sb.AppendLine();
+        }
+
+        return sb.ToString();
+    }
 }
 
 public class Grid(IReadOnlyList<char[]> lines) : Grid<char>(lines)
 {
+    public static Grid Parse(IEnumerable<char> input, int width) => new(input.Chunk(width).ToArray());
     public static Grid Parse(string input) => new(input.GetLines().Select(x => x.ToArray()).ToArray());
     public static Grid<int> ParseInts(string input) => Parse(input, c => c - '0');
     public static Grid<T> Parse<T>(string input, Func<char, T> map) => new(input.GetLines().Select(x => x.Select(map).ToArray()).ToArray());
