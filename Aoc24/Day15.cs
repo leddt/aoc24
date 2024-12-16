@@ -42,7 +42,7 @@ public class Day15(ITestOutputHelper output)
     {
         var (map, moves) = ParseSimple(input);
 
-        var robot = map.FindAll('@').First();
+        var robot = map.FindFirst('@');
         map[robot] = '.';
         
         foreach (var move in moves)
@@ -56,7 +56,7 @@ public class Day15(ITestOutputHelper output)
     {
         var (map, moves) = ParseWide(input);
         
-        var robot = map.FindAll('@').First();
+        var robot = map.FindFirst('@');
         map[robot] = '.';
         
         foreach (var move in moves)

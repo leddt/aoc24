@@ -31,7 +31,7 @@ public class Day06(ITestOutputHelper output)
     {
         var map = Grid.Parse(input);
         
-        var position = map.FindAll('^').First();
+        var position = map.FindFirst('^');
         var facing = Dir.Up;
 
         while (true)
@@ -50,7 +50,7 @@ public class Day06(ITestOutputHelper output)
     {
         var map = Grid.Parse(input);
         
-        var start = map.FindAll('^').First();
+        var start = map.FindFirst('^');
         var count = 0;
 
         map.ForEach(pos =>

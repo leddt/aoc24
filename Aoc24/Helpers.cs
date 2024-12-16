@@ -32,6 +32,7 @@ public class Grid<T>(IReadOnlyList<T[]> lines)
     }
     
     public IEnumerable<V2> FindAll(T c) => All().Where(x => Equals(this[x], c));
+    public V2 FindFirst(T c) => All().First(x => Equals(this[x], c));
 
     public IEnumerable<(V2 pos, T val)> Neighbors(V2 pos)
     {
@@ -90,6 +91,8 @@ public class Grid(IReadOnlyList<char[]> lines) : Grid<char>(lines)
 
 public readonly record struct V2(int X, int Y)
 {
+    public int XyLength => Math.Abs(X) + Math.Abs(Y);
+    
     public static V2 operator +(V2 a, V2 b) => new(a.X + b.X, a.Y + b.Y);
     public static V2 operator -(V2 a, V2 b) => new(a.X - b.X, a.Y - b.Y);
     public static V2 operator *(V2 a, int scale) => new(a.X * scale, a.Y * scale);
