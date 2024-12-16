@@ -41,24 +41,19 @@ public class Day12(ITestOutputHelper output)
         return regions.Sum(r => GetArea(r) * GetSideCount(r));
     }
 
-    private List<HashSet<V2>> GetAllRegions(string input)
+    private IEnumerable<HashSet<V2>> GetAllRegions(string input)
     {
         var grid = Grid.Parse(input);
         var visited = new HashSet<V2>();
-        var regions = new List<HashSet<V2>>();
 
         foreach (var pos in grid.All())
         {
             if (visited.Contains(pos)) continue;
-
-            var region = ScanRegion(grid, visited, pos);
-            regions.Add(region);
+            yield return ScanRegion(grid, visited, pos);
         }
-
-        return regions;
     }
 
-    HashSet<V2> ScanRegion(Grid grid, HashSet<V2> visited, V2 start)
+    HashSet<V2> ScanRegion(Grid grid, ISet<V2> visited, V2 start)
     {
         visited.Add(start);
         
