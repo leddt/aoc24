@@ -87,6 +87,12 @@ public class Grid(IReadOnlyList<char[]> lines) : Grid<char>(lines)
     public static Grid Parse(string input) => new(input.GetLines().Select(x => x.ToArray()).ToArray());
     public static Grid<int> ParseInts(string input) => Parse(input, c => c - '0');
     public static Grid<T> Parse<T>(string input, Func<char, T> map) => new(input.GetLines().Select(x => x.Select(map).ToArray()).ToArray());
+
+    public static Grid<T> Filled<T>(int width, int height, T val) => new(
+        Enumerable.Range(0, height)
+            .Select(_ => Enumerable.Repeat(val, width).ToArray())
+            .ToArray()
+    );
 }
 
 public readonly record struct V2(int X, int Y)
@@ -112,6 +118,8 @@ public readonly record struct V2(int X, int Y)
         Dir.Left => Left,
         _ => throw new ArgumentOutOfRangeException(nameof(dir), dir, null)
     };
+
+    public override string ToString() => $"V2({X},{Y})";
 }
 
 public enum Dir { Up, Right, Down, Left }
