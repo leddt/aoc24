@@ -1,4 +1,6 @@
-﻿namespace Aoc24;
+﻿using System.Numerics;
+
+namespace Aoc24;
 
 public class Day17(ITestOutputHelper output)
 {
@@ -25,81 +27,50 @@ public class Day17(ITestOutputHelper output)
     public void Solve()
     {
         var input = File.ReadAllText("inputs/17.txt");
-        
         output.WriteLine($"Part 1: {RunPart1(input)}");
         output.WriteLine($"Part 2: {RunPart2(input)}");
     }
 
     string RunPart1(string input)
     {
-        var vm = Parse(input, out _);
-        var result = string.Join(',', Execute(vm));
+        var vm = Parse(input);
+        var result = string.Join(',', vm.Execute());
         return result;
     }
 
-    int RunPart2(string input)
+    BigInteger RunPart2(string input)
     {
-        var a = 0;
-        var vm = Parse(input, out var targetProgram);
-        string result;
+        var vm = Parse(input);
 
-        do
+        return FindSolutions([], vm.Program).Select(Combine).Order().First();
+
+        IEnumerable<int[]> FindSolutions(int[] soFar, int[] target)
         {
-            vm.Reset(a++);
-            result = string.Join(',', Execute(vm));
-        } while (result != targetProgram);
-
-        return a - 1;
-    }
-
-    private IEnumerable<long> Execute(VM vm)
-    {
-        while (vm.IP < vm.Program.Length)
-        {
-            switch (vm.ReadInst())
+            for (var i = 0; i < 8; i++)
             {
-                case Inst.Halt:
-                    yield break;
-                case Inst.Adv:
-                    vm.A /= (long)Math.Pow(2, vm.ReadCombo());
-                    break;
-                case Inst.Bxl:
-                    vm.B ^= vm.ReadLiteral();
-                    break;
-                case Inst.Bst:
-                    vm.B = vm.ReadCombo() % 8;
-                    break;
-                case Inst.Jnz:
-                    if (vm.A == 0)
-                    {
-                        vm.ReadLiteral();
-                        // Do nothing
-                    }
-                    else
-                    {
-                        vm.IP = vm.ReadLiteral();
-                    }
-                    break;
-                case Inst.Bxc:
-                    vm.B ^= vm.C;
-                    vm.ReadLiteral();
-                    break;
-                case Inst.Out:
-                    yield return vm.ReadCombo() % 8;
-                    break;
-                case Inst.Bdv:
-                    vm.B = vm.A / (long)Math.Pow(2, vm.ReadCombo());
-                    break;
-                case Inst.Cdv:
-                    vm.C = vm.A / (long)Math.Pow(2, vm.ReadCombo());
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
+                int[] candidate = [..soFar, i];
+                
+                vm.Reset(Combine(candidate));
+                var result = vm.Execute().ToArray();
+
+                if (result.First() != target[^(soFar.Length + 1)]) continue;
+                
+                if (result.Length == target.Length)
+                {
+                    yield return candidate;
+                }
+                else
+                {
+                    foreach (var s in FindSolutions(candidate, target))
+                        yield return s;
+                }
             }
         }
+
+        BigInteger Combine(int[] values) => values.Aggregate(BigInteger.Zero, (a, c) => a * 8 + c);
     }
 
-    VM Parse(string input, out string originalProgram)
+    Vm Parse(string input)
     {
         var lines = input.GetLines();
 
@@ -107,50 +78,80 @@ public class Day17(ITestOutputHelper output)
         var b = long.Parse(lines[1].Split(':', StringSplitOptions.TrimEntries)[1]);
         var c = long.Parse(lines[2].Split(':', StringSplitOptions.TrimEntries)[1]);
         
-        originalProgram = lines[4].Split(':', StringSplitOptions.TrimEntries)[1];
-        var instructions = originalProgram.Split(',').Select(long.Parse);
+        var program = lines[4].Split(':', StringSplitOptions.TrimEntries)[1];
+        var instructions = program.Split(',').Select(int.Parse);
 
-        return new VM(a, b, c, instructions.ToArray());
+        return new Vm(a, b, c, instructions.ToArray());
     }
 
-    class VM(long a, long b, long c, long[] program)
+    class Vm(BigInteger a, BigInteger b, BigInteger c, int[] program)
     {
-        public long A { get; set; } = a;
-        public long B { get; set; } = b;
-        public long C { get; set; } = c;
-        public long IP { get; set; } = 0;
-        public long[] Program { get; set; } = program;
-
-        public Inst ReadInst() => IP >= Program.Length ? Inst.Halt : (Inst)Program[IP++];
-
-        public long ReadLiteral()
-        {
-            if (IP >= Program.Length) throw new InvalidOperationException();
-            return Program[IP++];
-        }
+        public int[] Program => program;
         
-        public long ReadCombo()
+        private int _ip = 0;
+        private Inst ReadInst() => (Inst)program[_ip++];
+        private int ReadLiteral() => program[_ip++];
+
+        private BigInteger ReadCombo()
         {
             var val = ReadLiteral();
 
             return val switch
             {
                 <= 3 => val,
-                4 => A,
-                5 => B,
-                6 => C,
+                4 => a,
+                5 => b,
+                6 => c,
                 _ => throw new InvalidOperationException()
             };
         }
 
-        public void Reset(long a, long b = 0, long c = 0)
+        public void Reset(BigInteger newA)
         {
-            A = a;
-            B = b;
-            C = c;
-            IP = 0;
+            a = newA;
+            b = c = _ip = 0;
+        }
+        
+        public IEnumerable<int> Execute()
+        {
+            while (_ip < program.Length)
+            {
+                switch (ReadInst())
+                {
+                    case Inst.Adv:
+                        a /= (BigInteger)Math.Pow(2, (int)ReadCombo());
+                        break;
+                    case Inst.Bxl:
+                        b ^= ReadLiteral() >>> 0;
+                        break;
+                    case Inst.Bst:
+                        b = ReadCombo() % 8;
+                        break;
+                    case Inst.Jnz:
+                        if (a == 0)
+                            _ip++; // Do nothing
+                        else
+                            _ip = ReadLiteral();
+                        break;
+                    case Inst.Bxc:
+                        b ^= c;
+                        ReadLiteral();
+                        break;
+                    case Inst.Out:
+                        yield return (int)(ReadCombo() % 8);
+                        break;
+                    case Inst.Bdv:
+                        b = a / (BigInteger)Math.Pow(2, (int)ReadCombo());
+                        break;
+                    case Inst.Cdv:
+                        c = a / (BigInteger)Math.Pow(2, (int)ReadCombo());
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
         }
     }
     
-    enum Inst { Halt = -1, Adv = 0, Bxl, Bst, Jnz, Bxc, Out, Bdv, Cdv }
+    enum Inst { Adv = 0, Bxl, Bst, Jnz, Bxc, Out, Bdv, Cdv }
 }
