@@ -34,7 +34,7 @@ public class Grid<T>(IReadOnlyList<T[]> lines)
     public IEnumerable<V2> FindAll(T c) => All().Where(x => Equals(this[x], c));
     public V2 FindFirst(T c) => All().First(x => Equals(this[x], c));
 
-    public IEnumerable<(V2 pos, T val)> Neighbors(V2 pos)
+    public IEnumerable<(V2 pos, T val)> Neighbors(V2 pos, Func<(V2 pos, T val), bool>? predicate = null)
     {
         V2[] all = [
             pos + V2.Up, 
@@ -43,7 +43,8 @@ public class Grid<T>(IReadOnlyList<T[]> lines)
             pos + V2.Left
         ];
 
-        return all.Where(Contains).Select(x => (x, this[x]));
+        predicate ??= _ => true;
+        return all.Where(Contains).Select(x => (x, this[x])).Where(x => predicate(x));
     }
 
     public void ForEach(Action<V2> action)
