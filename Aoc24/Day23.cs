@@ -81,25 +81,43 @@ public class Day23(ITestOutputHelper output)
         var lookup = connections.ToLookup(x => x.A, x => x.B);
         
         string[] largest = [];
-        TryAllSets();
+        TryAllSetsParallel();
         
         return string.Join(',', largest);
         
-        void TryAllSets(int startIndex = 0, string[]? current = null)
+        // void TryAllSets(int startIndex = 0, string[]? current = null)
+        // {
+        //     for (var i = startIndex; i < allComputers.Length; i++)
+        //     {
+        //         // Is the set still valid if we add this computer?
+        //         string[] candidate = [..current ?? [], allComputers[i]];
+        //         if (!IsValidSet(candidate)) continue;
+        //
+        //         // Keep track of best set yet
+        //         if (candidate.Length > largest.Length)
+        //             largest = candidate;
+        //
+        //         // Try with more computers
+        //         TryAllSets(i + 1, candidate);
+        //     }
+        // }
+
+        void TryAllSetsParallel(int startIndex = 0, string[]? current = null)
         {
-            for (var i = startIndex; i < allComputers.Length; i++)
+            Parallel.For(startIndex, allComputers.Length, i =>
             {
                 // Is the set still valid if we add this computer?
                 string[] candidate = [..current ?? [], allComputers[i]];
-                if (!IsValidSet(candidate)) continue;
+                if (!IsValidSet(candidate)) return;
                 
                 // Keep track of best set yet
-                if (candidate.Length > largest.Length) 
-                    largest = candidate;
+                var currentLargest = largest;
+                if (candidate.Length > currentLargest.Length)
+                    Interlocked.CompareExchange(ref largest, candidate, currentLargest);
                     
                 // Try with more computers
-                TryAllSets(i + 1, candidate);
-            }
+                TryAllSetsParallel(i + 1, candidate);
+            });
         }
 
         bool IsValidSet(string[] candidate)
