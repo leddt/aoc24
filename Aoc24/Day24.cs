@@ -51,31 +51,8 @@ public class Day24(ITestOutputHelper output)
                                   tgd XOR rvg -> z12
                                   tnw OR pbm -> gnj
                                   """;
-
-    private const string Sample2 = """
-                                   x00: 0
-                                   x01: 1
-                                   x02: 0
-                                   x03: 1
-                                   x04: 0
-                                   x05: 1
-                                   y00: 0
-                                   y01: 0
-                                   y02: 1
-                                   y03: 1
-                                   y04: 0
-                                   y05: 1
-                                   
-                                   x00 AND y00 -> z05
-                                   x01 AND y01 -> z02
-                                   x02 AND y02 -> z01
-                                   x03 AND y03 -> z03
-                                   x04 AND y04 -> z04
-                                   x05 AND y05 -> z00
-                                   """;
     
     [Fact] public async Task TestPart1() => Assert.Equal(2024, await RunPart1(Sample1));
-    // [Fact] public async Task TestPart2() => Assert.Equal("z00,z01,z02,z05", await RunPart2(Sample2, 2, (x, y, z) => (x & y) == z));
     
     [Fact]
     public async Task Solve()
@@ -83,7 +60,6 @@ public class Day24(ITestOutputHelper output)
         var input = await File.ReadAllTextAsync("inputs/24.txt");
         
         output.WriteLine($"Part 1: {await RunPart1(input)}");
-        // output.WriteLine($"Part 2: {await RunPart2(input, 4, (x, y, z) => x + y == z)}");
     }
 
     async ValueTask<long> RunPart1(string input)
@@ -93,14 +69,6 @@ public class Day24(ITestOutputHelper output)
 
         return BitsToValue(bits);
     }
-
-    // async ValueTask<string> RunPart2(string input, int swapCount, Func<long, long, long, bool> testCase)
-    // {
-    //     var wires = await Parse(input);
-    //     var gates = wires.Where(w => w.IsGate).ToArray();
-    //
-    //     return "";
-    // }
 
     private IEnumerable<bool> GetBits(char prefix, IEnumerable<Wire> wires) => wires
         .Where(x => x.Name[0] == prefix)
@@ -203,6 +171,4 @@ public class Day24(ITestOutputHelper output)
 
         public override string ToString() => Name == Original ? Name : $"{Name} ({Original})";
     }
-
-    readonly record struct Pair(Wire A, Wire B);
 }
