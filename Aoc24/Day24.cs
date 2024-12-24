@@ -52,28 +52,28 @@ public class Day24(ITestOutputHelper output)
                                   tnw OR pbm -> gnj
                                   """;
     
-    [Fact] public async Task TestPart1() => Assert.Equal(2024, await RunPart1(Sample1));
+    [Fact] public void TestPart1() => Assert.Equal(2024, RunPart1(Sample1));
     
     [Fact]
-    public async Task Solve()
+    public void Solve()
     {
-        var input = await File.ReadAllTextAsync("inputs/24.txt");
+        var input = File.ReadAllText("inputs/24.txt");
         
-        output.WriteLine($"Part 1: {await RunPart1(input)}");
+        output.WriteLine($"Part 1: {RunPart1(input)}");
     }
 
-    async ValueTask<long> RunPart1(string input)
+    long RunPart1(string input)
     {
-        var wires = await Parse(input);
-        var bits = GetBits('z', wires);
+        var wires = Parse(input);
+        var bits = GetBits('z', wires.ToDictionary(x => x.Name));
 
         return BitsToValue(bits);
     }
 
-    private IEnumerable<bool> GetBits(char prefix, IEnumerable<Wire> wires) => wires
+    private IEnumerable<bool> GetBits(char prefix, IDictionary<string, Wire> wires) => wires.Values
         .Where(x => x.Name[0] == prefix)
         .OrderBy(x => x.Name)
-        .Select(x => x.Value);
+        .Select(x => x.GetValue(wires));
 
     private static long BitsToValue(IEnumerable<bool> bits)
     {
@@ -89,86 +89,54 @@ public class Day24(ITestOutputHelper output)
         return result;
     }
 
-    private static async Task<Wire[]> Parse(string input)
+    private static IEnumerable<Wire> Parse(string input)
     {
-        var wires = new Dictionary<string, Wire>();
+        var wires = new List<Wire>();
 
         foreach (var line in input.GetLines())
         {
             if (line.Contains(':'))
             {
                 var parts = line.Split(':', StringSplitOptions.TrimEntries);
-                GetWire(parts[0]).SetValue(parts[1] == "1");
+                wires.Add(new Input(parts[0], parts[1] == "1"));
             }
 
             if (line.Contains("->"))
             {
                 var parts = line.Split("->", StringSplitOptions.TrimEntries);
-                
+                var name = parts[1];
                 var eqParts = parts[0].Split(' ');
-                var left = GetWire(eqParts[0]);
-                var right = GetWire(eqParts[2]);
-                var eq = GetEquationFunction(eqParts[1]);
-                GetWire(parts[1]).SetGate(left, right, eq);
+                
+                wires.Add(eqParts switch
+                {
+                    [var left, "AND", var right] => new AndGate(name, left, right),
+                    [var left, "OR", var right] => new OrGate(name, left, right),
+                    [var left, "XOR", var right] => new XorGate(name, left, right),
+                    _ => throw new ArgumentOutOfRangeException()
+                });
             }
         }
 
-        await Task.WhenAll(wires.Values.Select(x => x.ResultTask));
-
-        return wires.Values.ToArray();
-
-        Wire GetWire(string name)
-        {
-            if (wires.TryGetValue(name, out var wire)) return wire;
-            return wires[name] = new Wire(name);
-        }
-
-        Func<bool, bool, bool> GetEquationFunction(string op)
-        {
-            return op switch
-            {
-                "AND" => (l, r) => l && r,
-                "OR" => (l, r) => l || r,
-                "XOR" => (l, r) => l != r,
-                _ => throw new ArgumentOutOfRangeException(nameof(op))
-            };
-        }
+        return wires;
     }
 
-    class Wire(string name)
+    abstract record Wire(string Name)
     {
-        public string Original { get; } = name;
-        public string Name { get; set; } = name;
-        
-        public bool IsGate { get; private set; }
-        public Wire? GateLeft { get; private set; }
-        public Wire? GateRight { get; private set; }
-
-        private readonly TaskCompletionSource _tcs = new();
-        public Task ResultTask => _tcs.Task;
-
-        public bool Value { get; private set; }
-
-        public void SetValue(bool fixedValue)
-        {
-            Value = fixedValue;
-            _tcs.SetResult();
-        }
-
-        public void SetGate(Wire left, Wire right, Func<bool, bool, bool> op)
-        {
-            IsGate = true;
-            GateLeft = left;
-            GateRight = right;
-
-            Task.WhenAll(left.ResultTask, right.ResultTask)
-                .ContinueWith(r =>
-                {
-                    Value = op(left.Value, right.Value);
-                    _tcs.SetResult();
-                });
-        }
-
-        public override string ToString() => Name == Original ? Name : $"{Name} ({Original})";
+        public abstract bool GetValue(IDictionary<string, Wire> wires);
     }
+
+    record Input(string Name, bool Value) : Wire(Name)
+    {
+        public override bool GetValue(IDictionary<string, Wire> wires) => Value;
+    }
+
+    abstract record Gate(string Name, string Left, string Right, Func<bool,bool,bool> Op) : Wire(Name)
+    {
+        public override bool GetValue(IDictionary<string, Wire> wires) =>
+            Op(wires[Left].GetValue(wires), wires[Right].GetValue(wires));
+    }
+
+    record AndGate(string Name, string Left, string Right) : Gate(Name, Left, Right, (l, r) => l && r);
+    record OrGate(string Name, string Left, string Right) : Gate(Name, Left, Right, (l, r) => l || r);
+    record XorGate(string Name, string Left, string Right) : Gate(Name, Left, Right, (l, r) => l != r);
 }
