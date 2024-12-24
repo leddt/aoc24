@@ -60,6 +60,7 @@ public class Day24(ITestOutputHelper output)
         var input = File.ReadAllText("inputs/24.txt");
         
         output.WriteLine($"Part 1: {RunPart1(input)}");
+        // I solved part 2 manually by finding outliers in the gates. See input/24_scratchpad.txt
     }
 
     long RunPart1(string input)
