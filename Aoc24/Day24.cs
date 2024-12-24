@@ -84,7 +84,7 @@ public class Day24(ITestOutputHelper output)
         foreach (var bit in bits)
         {
             if (bit) result += v;
-            v *= 2;
+            v <<= 1;
         }
 
         return result;
