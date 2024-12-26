@@ -86,7 +86,6 @@ public class Day24(ITestOutputHelper output)
             if (bit) result += v;
             v <<= 1;
         }
-
         return result;
     }
 

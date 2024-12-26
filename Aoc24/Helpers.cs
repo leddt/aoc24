@@ -30,6 +30,18 @@ public class Grid<T>(IReadOnlyList<T[]> lines)
         for (var y = 0; y < Height; y++)
             yield return new V2(x, y);
     }
+
+    public IEnumerable<T> Col(int col)
+    {
+        for (var row = 0; row < Height; row++)
+            yield return this[col, row];
+    }
+
+    public IEnumerable<T> Row(int row)
+    {
+        for (var col = 0; col < Width; col++)
+            yield return this[col, row];
+    }
     
     public IEnumerable<V2> FindAll(T c) => All().Where(x => Equals(this[x], c));
     public V2 FindFirst(T c) => All().First(x => Equals(this[x], c));
@@ -85,7 +97,8 @@ public class Grid<T>(IReadOnlyList<T[]> lines)
 public class Grid(IReadOnlyList<char[]> lines) : Grid<char>(lines)
 {
     public static Grid Parse(IEnumerable<char> input, int width) => new(input.Chunk(width).ToArray());
-    public static Grid Parse(string input) => new(input.GetLines().Select(x => x.ToArray()).ToArray());
+    public static Grid Parse(string input) => Parse(input.GetLines());
+    public static Grid Parse(IEnumerable<string> lines) => new(lines.Select(x => x.ToArray()).ToArray());
     public static Grid<int> ParseInts(string input) => Parse(input, c => c - '0');
     public static Grid<T> Parse<T>(string input, Func<char, T> map) => new(input.GetLines().Select(x => x.Select(map).ToArray()).ToArray());
 
